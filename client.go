@@ -26,6 +26,7 @@ func main() {
 	fmt.Println("buy [amount in USDC] at [limit price](ex. To buy 10USDC worth of JEWEL at $2.4, type 'buy 10 at 2.4')")
 	fmt.Println("sell [amount in JEWEL] at [limit price](ex. To sell 1 JEWEL worth at $2.4, type 'sell 1 at 2.4')")
 	fmt.Println("orders (Gets all current limit orders placed)")
+	fmt.Println("cancel (Cancels all current limit orders placed)")
 	for {
 		var line string
 		input := bufio.NewScanner(os.Stdin)
@@ -41,6 +42,8 @@ func main() {
 			buy(split[3], split[1])
 		case "sell":
 			sell(split[3], split[1])
+		case "cancel":
+			cancel()
 		default:
 			fmt.Println("Invalid command")
 		}
@@ -118,6 +121,21 @@ func sell(limitPrice string, amount string) {
 		log.Fatal(err)
 	}
 	defer response.Body.Close()
+	fmt.Println("Response Status:", response.Status)
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(responseData))
+}
+func cancel() {
+	response, err := http.Post("http://"+os.Args[1]+":5000/cancel", "application/json", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer response.Body.Close()
+
 	fmt.Println("Response Status:", response.Status)
 
 	responseData, err := ioutil.ReadAll(response.Body)
